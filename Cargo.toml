@@ -1,10 +1,15 @@
 
 [package]
 name = "fire-log-to-stdout"
-description = "A small logging library outputting to stdout. Configuration is done using environment variables."
 version = "0.1.0"
-authors = ["Sören Meier <soeren@s-me.ch>"]
 edition = "2018"
+
+description = "A small logging library outputting to stdout. Configuration is done using environment variables."
+keywords = ["logging", "stdout", "env"]
+categories = ["development-tools::debugging"]
+authors = ["Sören Meier <soeren@s-me.ch>"]
+homepage = "https://fire-lib.com/"
+repository = "https://github.com/fire-lib/fire-log-to-stdout"
 license = "MIT OR Apache-2.0"
 
 [features]
