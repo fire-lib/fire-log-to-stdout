@@ -29,6 +29,7 @@ macro_rules! log_maybe_with_time {
 }
 
 #[cfg(feature = "log_time")]
+#[inline]
 pub fn time() -> String {
 	Utc::now().to_rfc3339()
 }
@@ -82,6 +83,7 @@ macro_rules! init_log_traits {
 		impl<T, E> Log for Result<T, E>
 		where E: std::fmt::Debug {
 
+			#[inline(always)]
 			fn info( self, msg: &'static str ) -> Self {
 				if let Err(e) = &self {
 					$crate::info!( "{} {:?}", msg, e );
@@ -97,6 +99,7 @@ macro_rules! init_log_traits {
 				self
 			}
 
+			#[inline(always)]
 			fn error( self, msg: &'static str ) -> Self {
 				if let Err(e) = &self {
 					$crate::error!( "{} {:?}", msg, e );
@@ -108,6 +111,7 @@ macro_rules! init_log_traits {
 
 		impl<T> Log for Option<T> {
 
+			#[inline(always)]
 			fn info( self, msg: &'static str ) -> Self {
 				if let None = &self {
 					$crate::info!("{} {:?}", msg, std::any::type_name::<Self>() );
@@ -115,6 +119,7 @@ macro_rules! init_log_traits {
 				self
 			}
 
+			#[inline(always)]
 			fn warn( self, msg: &'static str ) -> Self {
 				if let None = &self {
 					$crate::warn!("{} {:?}", msg, std::any::type_name::<Self>() );
@@ -122,6 +127,7 @@ macro_rules! init_log_traits {
 				self
 			}
 
+			#[inline(always)]
 			fn error( self, msg: &'static str ) -> Self {
 				if let None = &self {
 					$crate::error!("{} {:?}", msg, std::any::type_name::<Self>() );
@@ -133,6 +139,7 @@ macro_rules! init_log_traits {
 
 		impl Log for bool {
 
+			#[inline(always)]
 			fn info( self, msg: &'static str ) -> Self {
 				if !self {
 					$crate::info!("{}", msg );
@@ -140,6 +147,7 @@ macro_rules! init_log_traits {
 				self
 			}
 
+			#[inline(always)]
 			fn warn( self, msg: &'static str ) -> Self {
 				if !self {
 					$crate::warn!("{}", msg );
@@ -147,6 +155,7 @@ macro_rules! init_log_traits {
 				self
 			}
 
+			#[inline(always)]
 			fn error( self, msg: &'static str ) -> Self {
 				if !self {
 					$crate::error!("{}", msg );
@@ -166,16 +175,19 @@ macro_rules! init_log_traits {
 		impl<T> AlwaysLog for T
 		where T: std::fmt::Debug {
 
+			#[inline(always)]
 			fn always_info( self, msg: &'static str ) -> Self {
 				$crate::info!( "{} {:?}", msg, self );
 				self
 			}
 
+			#[inline(always)]
 			fn always_warn( self, msg: &'static str ) -> Self {
 				$crate::warn!( "{} {:?}", msg, self );
 				self
 			}
 
+			#[inline(always)]
 			fn always_error( self, msg: &'static str ) -> Self {
 				$crate::error!( "{} {:?}", msg, self );
 				self
