@@ -205,19 +205,31 @@ mod tests {
 
 	use super::*;
 
-	add_log_trait!();
+	init_log_traits!();
+	use log_traits::*;
 
 	#[test]
 	fn test_env() {
-		assert_eq!( "env_name {}", log_env_name!() );
-		println!( "log_level {}", log_level!() );
-		assert!(false);
+		assert_eq!( "fire_log_to_stdout_log", log_env_name!() );
+		assert_eq!( "ERROR", log_level!() );
 	}
 
 	#[test]
 	fn test_log_trait() {
 		let err: Result<(), _> = Err("static");
-		let _ = err.warn("error detect in test_log_trait");
+		let _ = err.error("error detect in test_log_trait");
+	}
+
+	#[test]
+	fn test_always_log_trait() {
+		#[derive(Debug)]
+		enum YesNo {
+			Yes,
+			No
+		}
+
+		let yn = YesNo::Yes;
+		yn.always_error("should output yes");
 	}
 
 }
