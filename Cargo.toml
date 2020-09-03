@@ -1,7 +1,7 @@
 
 [package]
 name = "fire-log-to-stdout"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2018"
 
 description = "A small logging library outputting to stdout. Configuration is done using environment variables."
@@ -13,7 +13,6 @@ repository = "https://github.com/fire-lib/fire-log-to-stdout"
 license = "MIT OR Apache-2.0"
 
 [features]
-default = ["log_time"]
 log_time = ["chrono"]
 
 [dependencies]
