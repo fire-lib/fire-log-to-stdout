@@ -1,12 +1,8 @@
 
 
-#[cfg(feature = "log_time")]
-use chrono::Utc;
-
-
 #[macro_export]
 macro_rules! log_env_name {
-	() => (concat!(env!("CARGO_CRATE_NAME"), "_log"))
+	() => (concat!( env!("CARGO_CRATE_NAME"), "_log" ))
 }
 
 #[macro_export]
@@ -20,53 +16,95 @@ macro_rules! log_level {
 	})
 }
 
-#[cfg(not(feature = "log_time"))]
+#[cfg(feature = "log_crate")]
 #[macro_export]
-macro_rules! log_maybe_with_time {
-	( INFO, $($arg:tt)* ) => (println!( "INFO {}", format!($($arg)*) ));
-	( WARN, $($arg:tt)* ) => (println!( "WARN {}", format!($($arg)*) ));
-	( ERRO, $($arg:tt)* ) => (println!( "ERRO {}", format!($($arg)*) ));
+macro_rules! level_lit {
+	( $level:literal ) => (
+		concat!( env!("CARGO_CRATE_NAME"), " ", $level, " " )
+	)
 }
 
-#[cfg(feature = "log_time")]
-#[inline]
-pub fn time() -> String {
-	Utc::now().to_rfc3339()
+#[cfg(not(feature = "log_crate"))]
+#[macro_export]
+macro_rules! level_lit {
+	( $level:literal ) => (concat!( $level, " " ))
 }
 
-#[cfg(feature = "log_time")]
+
 #[macro_export]
-macro_rules! log_maybe_with_time {
-	( INFO, $($arg:tt)* ) => (println!( "{} INFO {}", $crate::time(), format!($($arg)*) ));
-	( WARN, $($arg:tt)* ) => (println!( "{} WARN {}", $crate::time(), format!($($arg)*) ));
-	( ERRO, $($arg:tt)* ) => (println!( "{} ERRO {}", $crate::time(), format!($($arg)*) ));
+macro_rules! log_stdout {
+	( $level:literal, $msg:literal ) => (
+		print!(concat!( $crate::level_lit!($level), $msg, "\n" ));
+	);
+	( $level:literal, $str:expr ) => (
+		println!( concat!( $crate::level_lit!($level), "{}" ), $str )
+	);
+	( $level:literal, $($arg:tt)* ) => (
+		$crate::log_stdout!( $level, format!($($arg)*) )
+		//let mut s = String::from( $crate::level_lit!($level) );
+		//use std::fmt::Write;
+		//let _ = writeln!( &mut s, $($arg)* );
+		//print!( "{}", s );
+	);
+}
+
+#[macro_export]
+macro_rules! log_stderr {
+	( $level:literal, $msg:literal ) => (
+		eprint!(concat!( $crate::level_lit!($level), $msg, "\n" ));
+	);
+	( $level:literal, $str:expr ) => (
+		eprintln!( concat!( $crate::level_lit!($level), "{}" ), $str )
+	);
+	( $level:literal, $($arg:tt)* ) => (
+		$crate::log_stderr!( $level, format!($($arg)*) )
+		//let mut s = String::from( $crate::level_lit!($level) );
+		//use std::fmt::Write;
+		//let _ = writeln!( &mut s, $($arg)* );
+		//eprint!( "{}", s );
+	);
+}
+
+#[macro_export]
+macro_rules! if_info {
+	($b:block) => (match $crate::log_level!() {
+		"INFO" => { $b }, _ => {}
+	})
+}
+
+#[macro_export]
+macro_rules! if_warn {
+	($b:block) => (match $crate::log_level!() {
+		"INFO" | "WARN" => { $b }, _ => {}
+	})
+}
+
+#[macro_export]
+macro_rules! if_error {
+	($b:block) => (match $crate::log_level!() {
+		"INFO" | "WARN" | "ERROR" => { $b }, _ => {}
+	})
 }
 
 #[macro_export]
 macro_rules! info {
-	($($arg:tt)*) => (match $crate::log_level!() {
-		"INFO" => {
-		$crate::log_maybe_with_time!( INFO, $($arg)* );
-		}, _ => {}
-	})
+	($($arg:tt)*) => ( $crate::if_info!({
+		$crate::log_stdout!( "INFO", $($arg)* );
+	}) )
 }
 
 #[macro_export]
 macro_rules! warn {
-	($($arg:tt)*) => (match $crate::log_level!() {
-		"INFO" | "WARN" => {
-		$crate::log_maybe_with_time!( WARN, $($arg)* );
-		}, _ => {}
-	})
+	($($arg:tt)*) => ( $crate::if_warn!({
+		$crate::log_stderr!( "WARN", $($arg)* );
+	}) )
 }
 
 #[macro_export]
 macro_rules! error {
-	($($arg:tt)*) => (match $crate::log_level!() {
-		"INFO" | "WARN" | "ERROR" => {
-		$crate::log_maybe_with_time!( ERRO, $($arg)* );
-		}, _ => {}
-	})
+	($($arg:tt)*) => ( $crate::if_error!({
+		$crate::log_stderr!( "ERRO", $($arg)* );
+	}) )
 }
 
 
